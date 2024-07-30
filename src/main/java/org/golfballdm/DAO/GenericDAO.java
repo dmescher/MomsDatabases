@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariConfig;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Properties;
 
@@ -13,6 +14,7 @@ public abstract class GenericDAO {
     private HikariConfig poolConfig;
     private boolean configured = false;
     private final String daoName;
+    private static final String TEST_SQL = "SELECT * from dbo.Empty";
 
     protected GenericDAO(String daoName) {
         this.daoName = daoName;
@@ -27,7 +29,8 @@ public abstract class GenericDAO {
             return;
         }
 
-        HikariConfig poolConfig = createConfiguration(daoName);
+        poolConfig = createConfiguration(daoName);
+        connectionPool = new ConnectionPool(poolConfig);
         configured = true;
     }
 
@@ -44,10 +47,14 @@ public abstract class GenericDAO {
             properties.load(input);
             rtn.setJdbcUrl(properties.getProperty(daoName+".jdbc.url"));
             System.out.println(properties.getProperty(daoName+".jdbc.url"));
+            rtn.setDriverClassName(properties.getProperty(daoName+".jdbc.driver"));
+            System.out.println(properties.getProperty(daoName+".jdbc.driver"));
             rtn.setUsername(properties.getProperty(daoName+".jdbc.user"));
             System.out.println(properties.getProperty(daoName+".jdbc.user"));
-
-
+            rtn.setPassword(properties.getProperty(daoName+".jdbc.password"));
+            System.out.println(properties.getProperty(daoName+".jdbc.password"));
+            rtn.setMaximumPoolSize(Integer.parseInt(properties.getProperty(daoName+".hikari.maxpoolsize")));
+            System.out.println(Integer.parseInt(properties.getProperty(daoName+".hikari.maxpoolsize")));
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Failure to load properties for "+configName);
@@ -58,15 +65,27 @@ public abstract class GenericDAO {
 
     }
 
-    public Connection getConnectionFromPool() {
-        return null;
+    private Connection getConnectionFromPool() throws IllegalStateException, SQLException {
+        if (!configured) {
+            throw new IllegalStateException("DAO "+daoName+" not configured.");
+        }
+
+        return connectionPool.getConnection();
     }
 
     public boolean testConnection() throws IllegalStateException, SQLException {
         if (!configured) {
             throw new IllegalStateException("DAO "+daoName+" not configured.");
         }
-        return false;
 
+        try (Connection connection = getConnectionFromPool();
+             PreparedStatement ps = connection.prepareStatement(TEST_SQL)) {
+            ps.execute();
+            // We don't care about the contents of the result set (which should be empty anyway)
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
