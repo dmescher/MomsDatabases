@@ -26,12 +26,14 @@
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-grizzly2-http</artifactId>
+            <version>3.1.7</version>
         </dependency>
 
         <!-- Jersey DI and core-->
         <dependency>
             <groupId>org.glassfish.jersey.inject</groupId>
             <artifactId>jersey-hk2</artifactId>
+            <version>3.1.7</version>
         </dependency>
 
         <!-- add jackson as json provider -->
@@ -95,7 +97,7 @@
         <java.version>22</java.version>
         <junit.version>5.4.0</junit.version>
         <jsonassert.version>1.5.0</jsonassert.version>
-        <jersey.version>3.0.2</jersey.version>
+        <jersey.version>3.1.7</jersey.version>
     </properties>
     <build>
         <finalName>ledger-backend</finalName>
