@@ -21,8 +21,6 @@ public class Main {
         final ResourceConfig config = new ResourceConfig();
         config.register(LedgerResource.class);
         config.register(CensusResource.class);
-        // JacksonFeature for JAXB/POJO, for pure JSON, no need this JacksonFeature
-        // config.register(JacksonFeature.class);
 
         return GrizzlyHttpServerFactory.createHttpServer(BASE_URI, config);
     }
