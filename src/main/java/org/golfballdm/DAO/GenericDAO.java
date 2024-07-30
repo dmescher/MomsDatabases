@@ -46,15 +46,11 @@ public abstract class GenericDAO {
             }
             properties.load(input);
             rtn.setJdbcUrl(properties.getProperty(daoName+".jdbc.url"));
-            System.out.println(properties.getProperty(daoName+".jdbc.url"));
             rtn.setDriverClassName(properties.getProperty(daoName+".jdbc.driver"));
-            System.out.println(properties.getProperty(daoName+".jdbc.driver"));
             rtn.setUsername(properties.getProperty(daoName+".jdbc.user"));
-            System.out.println(properties.getProperty(daoName+".jdbc.user"));
             rtn.setPassword(properties.getProperty(daoName+".jdbc.password"));
-            System.out.println(properties.getProperty(daoName+".jdbc.password"));
             rtn.setMaximumPoolSize(Integer.parseInt(properties.getProperty(daoName+".hikari.maxpoolsize")));
-            System.out.println(Integer.parseInt(properties.getProperty(daoName+".hikari.maxpoolsize")));
+            rtn.setConnectionTestQuery(TEST_SQL);
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Failure to load properties for "+configName);
@@ -62,7 +58,6 @@ public abstract class GenericDAO {
         }
 
         return rtn;
-
     }
 
     private Connection getConnectionFromPool() throws IllegalStateException, SQLException {
