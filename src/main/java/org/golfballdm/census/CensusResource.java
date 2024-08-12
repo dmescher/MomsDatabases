@@ -6,7 +6,11 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 
 import org.golfballdm.DAO.CensusDAO;
+import org.golfballdm.shared.ParameterValidator;
+import org.golfballdm.shared.ParameterValidatorImpl;
 import org.golfballdm.shared.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -17,7 +21,8 @@ import java.util.Map;
 public class CensusResource {
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final CensusDAO dao = CensusDAO.getInstance();
-    private static final String distinctFieldParameterName = Query.distinctFieldParameterName;
+    private static final ParameterValidator parameterValidator = new ParameterValidatorImpl();
+    private static Logger logger = LoggerFactory.getLogger(CensusResource.class);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -64,21 +69,28 @@ public class CensusResource {
     @Path("/query/free-res")
     @Produces(MediaType.APPLICATION_JSON)
     public Response queryFree(final @Context HttpHeaders headers, final @Context UriInfo uriInfo) {
+        logger.info("entering query (free-res) endpoint");
+
         // Check authorization
         if (!authCheck()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
 
+        logger.info("authCheck passed");
+
+
         // Get query parameters and validate
         MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
         Map<String, String> validatedParams = null;
         try {
-            validatedParams = validateParameters(queryParams);
+            validatedParams = parameterValidator.validateParameters(queryParams);
         } catch (IllegalArgumentException e) {
             ObjectNode json = mapper.createObjectNode();
             json.put("exception",e.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).entity(json).build();
         }
+
+        logger.info("parameter validation passed");
 
         // Build Query object
 
@@ -131,71 +143,9 @@ public class CensusResource {
         return null;
     }
 
-    /*
-     Used for sanity checking column names to prevent SQL injection attacks.
-     Since we can't use bind variables for the column names, we need to make sure
-     they conform to a standard.  (In this case, alphanumeric characters, dash, and underscore only)
-     */
-    private boolean sanityCheckColumnName(String parameter) {
-        return false;
-    }
-
-    /*
-     Used for query parameter validation
-     */
-    private Map<String, String> validateParameters(MultivaluedMap<String, String> parameters) throws IllegalArgumentException {
-        // Iterate through keys, make sure only one value per key
-        for (String s: parameters.keySet()) {
-            List<String> valList = parameters.get(s);
-            if (valList.size() > 1) {
-                throw new IllegalArgumentException("Duplicate values for parameter "+s);
-            }
-        }
-
-        HashMap<String, String> rtn = new HashMap<>();
-
-        // Parse field/value pairs in query parameters
-        int paramCount = 1;
-        int fieldsProcessed = 0;
-        boolean fieldFound = false;
-        boolean rtnField = false;
-        do {
-            String keyName = "field"+ paramCount;
-            String valName = "value"+ paramCount;
-            if (parameters.containsKey(keyName)) {
-                if (parameters.containsKey(valName)) {
-                    fieldFound=true;
-                    String keyVal = parameters.getFirst(keyName);
-                    String valVal = parameters.getFirst(valName);
-                    rtn.put(keyVal, valVal);
-                    fieldsProcessed++;
-                } else {
-                    throw new IllegalArgumentException("Missing value for key "+keyName);
-                }
-            } else {
-                fieldFound=false;
-                if (parameters.containsKey(valName)) {
-                    throw new IllegalArgumentException("Unpaired value "+valName);
-                }
-            }
-        } while (fieldFound);
-
-        // Check for return_column_name
-        if (parameters.containsKey(distinctFieldParameterName)) {
-            String val = parameters.getFirst(distinctFieldParameterName);
-            rtn.put(distinctFieldParameterName,val);
-            rtnField = true;
-        }
-
-        int queryParamLength = parameters.keySet().size();
-        if (queryParamLength != (fieldsProcessed*2)+(rtnField ? 1 : 0)) {
-            throw new IllegalArgumentException("Invalid field count");
-        }
-
-        return rtn;
-    }
 
     private boolean authCheck() {
-        return false;
+        // Probably will get moved to its own setup in the shared directory
+        return true;
     }
 }
