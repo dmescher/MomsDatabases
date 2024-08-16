@@ -3,6 +3,7 @@ package org.golfballdm.shared;
 import jakarta.ws.rs.core.MultivaluedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +11,8 @@ import java.util.Map;
 
 public class ParameterValidatorImpl implements ParameterValidator {
     private static final String distinctFieldParameterName = Query.distinctFieldParameterName;
+    private static final String sortFieldParameterName = Query.sortFieldParameterName;
+    private static final String sortDirectionName = Query.sortDirection;
     private static final ColumnNameValidator columnNameValidator = new ColumnNameValidatorImpl();
     private static Logger logger = LoggerFactory.getLogger(ParameterValidatorImpl.class);
 
@@ -29,9 +32,11 @@ public class ParameterValidatorImpl implements ParameterValidator {
         int fieldsProcessed = 0;
         boolean fieldFound;
         boolean rtnField = false;
+        boolean sortField = false;
+        boolean sortType = false;
         do {
-            String keyName = "field"+ fieldsProcessed+1;
-            String valName = "value"+ fieldsProcessed+1;
+            String keyName = "field"+ (fieldsProcessed + 1);
+            String valName = "value"+ (fieldsProcessed + 1);
             if (parameters.containsKey(keyName)) {
                 if (parameters.containsKey(valName)) {
                     fieldFound=true;
@@ -57,8 +62,28 @@ public class ParameterValidatorImpl implements ParameterValidator {
             rtnField = true;
         }
 
+        // Check for sort_column_name
+        if (parameters.containsKey(sortFieldParameterName)) {
+            String val = parameters.getFirst(sortFieldParameterName);
+            rtn.put(sortFieldParameterName,val);
+            sortField = true;
+        }
+
+        if (parameters.containsKey(sortDirectionName)) {
+            if (!sortField) {
+                throw new IllegalArgumentException("Sort direction is missing column name");
+            }
+            String val = parameters.getFirst(sortDirectionName);
+            if (!StringUtils.equalsIgnoreCase(val,"asc") &&
+                !StringUtils.equalsIgnoreCase(val,"desc")) {
+                throw new IllegalArgumentException("Sort direction must be asc/desc");
+            }
+            rtn.put(sortDirectionName,val);
+            sortType = true;
+        }
+
         int queryParamLength = parameters.keySet().size();
-        if (queryParamLength != (fieldsProcessed*2)+(rtnField ? 1 : 0)) {
+        if (queryParamLength != (fieldsProcessed*2)+(rtnField ? 1 : 0)+(sortField ? 1 : 0)+(sortType ? 1 : 0)) {
             throw new IllegalArgumentException("Invalid field count");
         }
 
