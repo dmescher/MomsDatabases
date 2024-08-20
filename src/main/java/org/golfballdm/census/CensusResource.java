@@ -6,6 +6,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 
 import org.golfballdm.DAO.CensusDAO;
+import org.golfballdm.models.FreeResident;
 import org.golfballdm.shared.ParameterValidator;
 import org.golfballdm.shared.ParameterValidatorImpl;
 import org.golfballdm.shared.Query;
@@ -13,8 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Path("/census")
@@ -63,6 +62,8 @@ public class CensusResource {
      All queries through this endpoint are field#=value# AND field#=value# .....
      They apply only to free residents, not slaves
      They return the entire FreeResident model, rather than a subset of fields
+     If distinct_field is present, then the select is select distinct(distinct_field), otherwise select *
+
      Response Body:  List<FreeResident>
      */
     @GET
@@ -91,8 +92,11 @@ public class CensusResource {
         }
 
         logger.info("parameter validation passed");
+        System.out.println(validatedParams.toString());
 
         // Build Query object
+        Query<FreeResident> query = new Query<>(validatedParams);
+        query.createTypeMap();
 
         // Return list of persons
         return null;
@@ -120,29 +124,6 @@ public class CensusResource {
         // Return list of persons
         return null;
     }
-
-    /*
-     All queries through this endpoint are SELECT DISTINCT(return_field_name) FROM FreeResidents
-     WHERE field#=value# AND field#=value# .....
-     Response Body:  List<String>
-     */
-    @GET
-    @Path("/query/distinct")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<String> queryDistinctFreeRes(final @Context HttpHeaders headers, final @Context UriInfo uriInfo) {
-        // Check authorization
-
-        // Get query parameters
-        MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
-
-        // Check to make sure all field and value parameters are matched
-
-        // Build Query object
-
-        // Return list of persons
-        return null;
-    }
-
 
     private boolean authCheck() {
         // Probably will get moved to its own setup in the shared directory

@@ -35,8 +35,8 @@ public class ParameterValidatorImpl implements ParameterValidator {
         boolean sortField = false;
         boolean sortType = false;
         do {
-            String keyName = "field"+ (fieldsProcessed + 1);
-            String valName = "value"+ (fieldsProcessed + 1);
+            String keyName = "field"+ (fieldsProcessed < 10 ? "0" : fieldsProcessed / 10) + (fieldsProcessed + 1);
+            String valName = "value"+ (fieldsProcessed < 10 ? "0" : fieldsProcessed / 10) + (fieldsProcessed + 1);
             if (parameters.containsKey(keyName)) {
                 if (parameters.containsKey(valName)) {
                     fieldFound=true;
