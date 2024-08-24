@@ -2,6 +2,7 @@ package org.golfballdm.shared;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -12,6 +13,8 @@ public class Query<T> {
     private int paramCount;
     private Map<String, String> parameters;
     private Map<String, String> parameterTypes;
+    private List<Field> allModelFields;
+    private List<String> allFieldNames;
     public static final String distinctFieldParameterName = "distinct_field";
     public static final String sortFieldParameterName = "sort_field";
     public static final String sortDirection = "sort_direction";
@@ -19,10 +22,15 @@ public class Query<T> {
     private Query() {
     }
 
-    public Query(Map<String, String> parameters) {
+    public Query(Map<String, String> parameters, Class<T> t) {
         this.parameters = parameters;
         this.paramCount = parameters.size();
         this.parameterTypes = new HashMap<>();
+        this.allModelFields = List.of(t.getFields());
+        this.allFieldNames = new ArrayList<>();
+        for (Field f : allModelFields) {
+            this.allFieldNames.add(f.getName());
+        }
     }
 
     public void createTypeMap() {
@@ -38,6 +46,15 @@ public class Query<T> {
                 parameterTypes.put(s,"String");
             }
         }
+    }
+
+    private String columnNamePresent(String s) {
+        for (String fieldNameCursor : this.allFieldNames) {
+            if (StringUtils.equalsIgnoreCase(fieldNameCursor, s)) {
+                return fieldNameCursor;
+            }
+        }
+        return null;
     }
 
     public PreparedStatement generatePreparedStatement(Connection conn) throws SQLException {
@@ -59,13 +76,14 @@ public class Query<T> {
                 case ".GE" -> ">=";
                 case ".LE" -> "<=";
                 case ".NE" -> "<>";
+                case ".LK" -> "LIKE";
                 default -> "=";
             };
 
             String columnName = StringUtils.substringBefore(s, ".");
-
-            // TODO:  Implement column name checking and make sure it is in the model noted by T
-            // If it isn't, throw SQLException (Bad column name)
+            if (null == columnNamePresent(columnName)) {
+                throw new SQLException("Bad column name "+s);
+            }
 
             whereClauses.add(columnName+operand+"?");
         }
