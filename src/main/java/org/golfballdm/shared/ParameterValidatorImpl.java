@@ -70,7 +70,7 @@ public class ParameterValidatorImpl implements ParameterValidator {
         }
 
         if (parameters.containsKey(sortDirectionName)) {
-            if (!sortField) {
+            if (!sortField && !parameters.containsKey(sortFieldParameterName)) {
                 throw new IllegalArgumentException("Sort direction is missing column name");
             }
             String val = parameters.getFirst(sortDirectionName);
@@ -87,6 +87,10 @@ public class ParameterValidatorImpl implements ParameterValidator {
             throw new IllegalArgumentException("Invalid field count");
         }
 
+        // I'm not sure, off the top of my head, if it's possible with everything above
+        // for the exception below to be thrown, since garbage field names (required for SQL injection
+        // attempts) will throw off the field count.
+        // But it's here as a final check.
         for (String s: rtn.keySet()) {
             if (!columnNameValidator.validateColumnName(s)) {
                 throw new IllegalArgumentException("Invalid column name "+s);

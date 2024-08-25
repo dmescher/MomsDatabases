@@ -95,7 +95,7 @@ public class CensusResource {
         System.out.println(validatedParams.toString());
 
         // Build Query object
-        Query<FreeResident> query = new Query<>(validatedParams, FreeResident.class);
+        Query<FreeResident> query = new Query<>(validatedParams, "dbo.FreeResidents", FreeResident.class);
         query.createTypeMap();
 
         // Return list of persons
