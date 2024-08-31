@@ -137,9 +137,23 @@ public class Query<T> {
         sqlStatement.append(";");
         preparedStatementString = sqlStatement.toString();
 
-        // Create the prepared statement, with variables filled in
+        if (null == conn) {
+            return null;
+        }
 
-        return null;
+        // Create the prepared statement, with variables filled in
+        PreparedStatement ps = conn.prepareStatement(preparedStatementString);
+
+        int index = 1;
+        for (String s : parameterList) {
+            switch (parameterTypes.get(s)) {
+                case FLOAT -> ps.setFloat(index, Float.parseFloat(parameters.get(s)));
+                case INTEGER -> ps.setInt(index, Integer.parseInt(parameters.get(s)));
+                case STRING -> ps.setString(index, parameters.get(s));
+            }
+        }
+
+        return ps;
 
     }
 }
