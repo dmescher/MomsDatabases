@@ -43,9 +43,10 @@ public class Query<T> {
         for (Field f : allModelFields) {
             this.allFieldNames.add(f.getName());
         }
+        createTypeMap();
     }
 
-    public void createTypeMap() {
+    private void createTypeMap() {
         for (String s : parameters.keySet()) {
             String val = parameters.get(s);
             boolean isFloat = val.matches("[+-]?[0-9]*\\.[0-9]+");
@@ -136,6 +137,7 @@ public class Query<T> {
 
         sqlStatement.append(";");
         preparedStatementString = sqlStatement.toString();
+        System.out.println(preparedStatementString);
 
         if (null == conn) {
             return null;
@@ -151,6 +153,7 @@ public class Query<T> {
                 case INTEGER -> ps.setInt(index, Integer.parseInt(parameters.get(s)));
                 case STRING -> ps.setString(index, parameters.get(s));
             }
+            index++;
         }
 
         return ps;
