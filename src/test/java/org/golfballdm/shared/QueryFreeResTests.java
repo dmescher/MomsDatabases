@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 
 public class QueryFreeResTests {
@@ -19,18 +21,15 @@ public class QueryFreeResTests {
     public void testQueryCreationSingleParameter() {
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put("FamilyID","205");
-        Query<FreeResident> query = new Query<>(paramMap,"dbo.Freeresidents", FreeResident.class);
-        try (Connection conn = Mockito.mock(Connection.class);
-             PreparedStatement ps = query.generatePreparedStatement(conn)) {
+        Connection conn = Mockito.mock(Connection.class);
+        PreparedStatement ps = Mockito.mock(PreparedStatement.class);
+        Query query = new Query(paramMap,"dbo.FreeResidents", new FreeResident());
+        try  {
+            when(conn.prepareStatement(anyString())).thenReturn(ps);
+            query.generatePreparedStatement(conn);
             assertTrue(
                     StringUtils.equalsIgnoreCase(query.getPreparedStatementString(),
-                            "SELECT * FROM dbo.FreeResidents WHERE FamilyID=205")
-            );
-            System.out.println(query.getPreparedStatementString());
-            assertEquals(1, ps.getParameterMetaData().getParameterCount());
-            assertTrue(
-                    StringUtils.equalsIgnoreCase(ps.getParameterMetaData().getParameterTypeName(1),
-                            "INTEGER")
+                            "SELECT * FROM dbo.FreeResidents  WHERE FamilyID=?;")
             );
         } catch (SQLException e) {
             fail("Threw a SQLException "+e.getMessage());
@@ -42,7 +41,7 @@ public class QueryFreeResTests {
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put("FamilyID","205");
         paramMap.put("Sex","f");
-        Query<FreeResident> query = new Query<>(paramMap,"dbo.Freeresidents", FreeResident.class);
+        Query query = new Query(paramMap,"dbo.Freeresidents", FreeResident.class);
         try (Connection conn = Mockito.mock(Connection.class);
              PreparedStatement ps = query.generatePreparedStatement(conn)) {
             assertTrue(

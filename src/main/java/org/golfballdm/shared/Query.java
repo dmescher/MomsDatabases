@@ -9,7 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
 
-public class Query<T> {
+public class Query {
     @Getter
     private String preparedStatementString;
 
@@ -33,11 +33,11 @@ public class Query<T> {
     private Query() {
     }
 
-    public Query(Map<String, String> parameters, String tableName, Class<T> t) {
+    public Query(Map<String, String> parameters, String tableName, Object t) {
         this.parameters = parameters;
         this.paramCount = parameters.size();
         this.parameterTypes = new HashMap<>();
-        this.allModelFields = List.of(t.getFields());
+        this.allModelFields = List.of(t.getClass().getDeclaredFields());
         this.tableNames = List.of(tableName);
         this.allFieldNames = new ArrayList<>();
         for (Field f : allModelFields) {
