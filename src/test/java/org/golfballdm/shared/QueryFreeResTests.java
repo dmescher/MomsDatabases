@@ -41,7 +41,7 @@ public class QueryFreeResTests {
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put("FamilyID","205");
         paramMap.put("Sex","f");
-        Query query = new Query(paramMap,"dbo.Freeresidents", FreeResident.class);
+        Query query = new Query(paramMap,"dbo.Freeresidents", new FreeResident());
         try (Connection conn = Mockito.mock(Connection.class);
              PreparedStatement ps = query.generatePreparedStatement(conn)) {
             assertTrue(
