@@ -55,4 +55,23 @@ public class QueryFreeResTests {
             fail("Threw a SQLException");
         }
     }
+
+    @Test
+    public void testQueryCreationInEqOperator() {
+        Map<String, String> paramMap = new HashMap<>();
+        paramMap.put("Age.GT","5");
+        Connection conn = Mockito.mock(Connection.class);
+        PreparedStatement ps = Mockito.mock(PreparedStatement.class);
+        Query query = new Query(paramMap, "dbo.Freeresidents", new FreeResident());
+        try {
+            when(conn.prepareStatement(anyString())).thenReturn(ps);
+            query.generatePreparedStatement(conn);
+            assertTrue(
+                    StringUtils.equalsIgnoreCase(query.getPreparedStatementString(),
+                            "SELECT * FROM dbo.FreeResidents  WHERE Age>?;")
+            );
+        } catch (SQLException e) {
+            fail("Threw a SQLException");
+        }
+    }
 }

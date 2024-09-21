@@ -84,11 +84,11 @@ public class Query {
             }
 
             String operand = switch(StringUtils.right(s, 3)) {
-                case ".GT" -> " > ";
-                case ".LT" -> " < ";
-                case ".GE" -> " >= ";
-                case ".LE" -> " <= ";
-                case ".NE" -> " <> ";
+                case ".GT" -> ">";
+                case ".LT" -> "<";
+                case ".GE" -> ">=";
+                case ".LE" -> "<=";
+                case ".NE" -> "<>";
                 case ".LK" -> " LIKE ";
                 default -> "=";
             };
