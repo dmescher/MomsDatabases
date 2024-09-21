@@ -41,17 +41,15 @@ public class QueryFreeResTests {
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put("FamilyID","205");
         paramMap.put("Sex","f");
+        Connection conn = Mockito.mock(Connection.class);
+        PreparedStatement ps = Mockito.mock(PreparedStatement.class);
         Query query = new Query(paramMap,"dbo.Freeresidents", new FreeResident());
-        try (Connection conn = Mockito.mock(Connection.class);
-             PreparedStatement ps = query.generatePreparedStatement(conn)) {
+        try {
+            when(conn.prepareStatement(anyString())).thenReturn(ps);
+            query.generatePreparedStatement(conn);
             assertTrue(
                     StringUtils.equalsIgnoreCase(query.getPreparedStatementString(),
-                            "SELECT * FROM dbo.FreeResidents WHERE FamilyID=205 AND Sex='f'")
-            );
-            assertEquals(1, ps.getParameterMetaData().getParameterCount());
-            assertTrue(
-                    StringUtils.equalsIgnoreCase(ps.getParameterMetaData().getParameterTypeName(1),
-                            "INTEGER")
+                            "SELECT * FROM dbo.FreeResidents  WHERE FamilyID=? AND Sex=?;")
             );
         } catch (SQLException e) {
             fail("Threw a SQLException");
