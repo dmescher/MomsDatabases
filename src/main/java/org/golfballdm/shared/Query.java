@@ -38,13 +38,13 @@ public class Query {
     private Query() {
     }
 
-    public Query(Map<String, String> parameters, String[] tablenames, Object t) {
+    public Query(Map<String, String> parameters, String[] tableNames, Object t) {
         this.parameters = parameters;
         createParameterMap();
 
         allFieldNames = Stream.of(t.getClass().getDeclaredFields()).map(Field::getName).toList();
 
-        this.tableNames = List.of(tablenames);
+        this.tableNames = List.of(tableNames);
     }
 
     public void createParameterMap() {
