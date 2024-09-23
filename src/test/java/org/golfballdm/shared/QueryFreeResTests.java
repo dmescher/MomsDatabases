@@ -2,18 +2,13 @@ package org.golfballdm.shared;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
 import org.golfballdm.models.FreeResident;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 
 public class QueryFreeResTests {
@@ -51,7 +46,7 @@ public class QueryFreeResTests {
     }
 
     @Test
-    public void testQueryCreationInEqOperator() {
+    public void testQueryCreationIneqOperator() {
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put("Age.GT","5");
         Query query = new Query(paramMap, new String[]{"dbo.Freeresidents"}, new FreeResident());
