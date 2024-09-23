@@ -45,6 +45,7 @@ public class Query {
         allFieldNames = Stream.of(t.getClass().getDeclaredFields()).map(Field::getName).toList();
 
         this.tableNames = List.of(tableNames);
+        // TODO:  Should we automatically generate the preparedStatement string?
     }
 
     public void createParameterMap() {
