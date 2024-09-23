@@ -29,14 +29,14 @@ public class ParameterValidatorImpl implements ParameterValidator {
         HashMap<String, String> rtn = new HashMap<>();
 
         // Parse field/value pairs in query parameters
-        int fieldsProcessed = 0;
+        int fieldsProcessed = 1;
         boolean fieldFound;
         boolean rtnField = false;
         boolean sortField = false;
         boolean sortType = false;
         do {
-            String keyName = "field"+ (fieldsProcessed + 1);
-            String valName = "value"+ (fieldsProcessed + 1);
+            String keyName = "field"+ (fieldsProcessed < 10 ? "0" : fieldsProcessed / 10) + (fieldsProcessed % 10);
+            String valName = "value"+ (fieldsProcessed < 10 ? "0" : fieldsProcessed / 10) + (fieldsProcessed % 10);
             if (parameters.containsKey(keyName)) {
                 if (parameters.containsKey(valName)) {
                     fieldFound=true;
@@ -54,6 +54,7 @@ public class ParameterValidatorImpl implements ParameterValidator {
                 }
             }
         } while (fieldFound);
+        fieldsProcessed--;  // Since the index starts at 1, this adjusts it back to the correct value after the loop finishes
 
         // Check for return_column_name
         if (parameters.containsKey(distinctFieldParameterName)) {
@@ -84,6 +85,9 @@ public class ParameterValidatorImpl implements ParameterValidator {
 
         int queryParamLength = parameters.keySet().size();
         if (queryParamLength != (fieldsProcessed*2)+(rtnField ? 1 : 0)+(sortField ? 1 : 0)+(sortType ? 1 : 0)) {
+            System.out.println("queryParamLength = "+queryParamLength);
+            System.out.println("fieldsProcessed = "+fieldsProcessed);
+            System.out.println("expected count = "+(fieldsProcessed*2+(rtnField ? 1 : 0)+(sortField ? 1 : 0)+(sortType ? 1 : 0)));
             throw new IllegalArgumentException("Invalid field count");
         }
 

@@ -8,6 +8,7 @@ public class ColumnNameValidatorImpl implements ColumnNameValidator {
                     !(c >= 'A' && c <= 'Z') &&
                     !(c >= '0' && c <= '9') &&
                     !(c == '_') &&
+                    !(c == '*') &&
                     !(c == '-')) {
                 return false;
             }

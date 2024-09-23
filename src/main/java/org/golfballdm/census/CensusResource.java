@@ -6,6 +6,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 
 import org.golfballdm.DAO.CensusDAO;
+import org.golfballdm.models.FreeResident;
 import org.golfballdm.shared.ParameterValidator;
 import org.golfballdm.shared.ParameterValidatorImpl;
 import org.golfballdm.shared.Query;
@@ -13,8 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Path("/census")
@@ -93,6 +92,7 @@ public class CensusResource {
         logger.info("parameter validation passed");
 
         // Build Query object
+        Query query = new Query(validatedParams, new String[]{"dbo.FreeResidents"}, new FreeResident());
 
         // Return list of persons
         return null;
@@ -108,28 +108,6 @@ public class CensusResource {
     @Path("/query/slave-res")
     @Produces(MediaType.APPLICATION_JSON)
     public Response querySlave(final @Context HttpHeaders headers, final @Context UriInfo uriInfo) {
-        // Check authorization
-
-        // Get query parameters
-        MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
-
-        // Check to make sure all field and value parameters are matched
-
-        // Build Query object
-
-        // Return list of persons
-        return null;
-    }
-
-    /*
-     All queries through this endpoint are SELECT DISTINCT(return_field_name) FROM FreeResidents
-     WHERE field#=value# AND field#=value# .....
-     Response Body:  List<String>
-     */
-    @GET
-    @Path("/query/distinct")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<String> queryDistinctFreeRes(final @Context HttpHeaders headers, final @Context UriInfo uriInfo) {
         // Check authorization
 
         // Get query parameters
