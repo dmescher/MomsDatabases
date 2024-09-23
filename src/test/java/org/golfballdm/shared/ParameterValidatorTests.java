@@ -117,4 +117,32 @@ public class ParameterValidatorTests {
         Map<String, String> mappedParameters = validator.validateParameters(paramMap);
         assertEquals(mappedParameters.get(Query.distinctFieldParameterName),"Age");
     }
+
+    @Test
+    public void HappyPathTenParameterTest() {
+        MultivaluedMap<String, String> paramMap = new MultivaluedHashMap<>();
+        paramMap.put("field01",List.of("Field1"));
+        paramMap.put("value01",List.of("Value1"));
+        paramMap.put("field02",List.of("Field2"));
+        paramMap.put("value02",List.of("value2"));
+        paramMap.put("field03",List.of("field3"));
+        paramMap.put("value03",List.of("value3"));
+        paramMap.put("field04",List.of("field4"));
+        paramMap.put("value04",List.of("value4"));
+        paramMap.put("value05",List.of("value5"));
+        paramMap.put("field05",List.of("field5"));
+        paramMap.put("field06",List.of("field6"));
+        paramMap.put("value06",List.of("value6"));
+        paramMap.put("field07",List.of("field7"));
+        paramMap.put("field08",List.of("field8"));
+        paramMap.put("value07",List.of("value7"));
+        paramMap.put("value08",List.of("value8"));
+        paramMap.put("field09",List.of("field9"));
+        paramMap.put("value09",List.of("value9"));
+        paramMap.put("field10",List.of("field10"));
+        paramMap.put("value10",List.of("value10"));
+        Map<String, String> mappedParameters = validator.validateParameters(paramMap);
+        assertEquals(mappedParameters.get("field10"),"value10");
+        assertEquals(mappedParameters.get("field7"),"value7");
+    }
 }

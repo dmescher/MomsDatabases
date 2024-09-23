@@ -13,6 +13,13 @@ import java.util.*;
 import java.util.stream.Stream;
 import java.sql.SQLException;
 
+/*
+ Field name format:
+   <field name> ::= <table alias> <column name> <operand>
+   <table alias> ::= <alias> "*" | ""
+   <operand> ::= "" | ".GT" | ".LT" | ".GE" | ".LE" | ".NE" | ".LK"
+ */
+
 public class Query {
     private List<String> tableNames;
 
