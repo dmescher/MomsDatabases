@@ -121,6 +121,16 @@ public class CensusResource {
         return null;
     }
 
+    // Query list for DB
+    // * Name
+    // * Family ID
+    // * # of slaves
+    // * County
+    // * Color
+    // * Married in Last Year
+    // * Schooling in Last Year
+    // * Over 20 & Cannot Read/Write
+
 
     private boolean authCheck() {
         // Probably will get moved to its own setup in the shared directory

@@ -40,4 +40,7 @@ public class FreeResident {
 
     @JsonProperty("IlliterateOver20")
     private char illiterateOver20;
+
+    @JsonProperty("NumberOfSlaves")
+    private int numberofslaves;
 }

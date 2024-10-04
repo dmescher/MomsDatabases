@@ -23,7 +23,7 @@ import java.sql.SQLException;
 public class Query {
     private List<String> tableNames;
 
-    @Getter private String preparedStatementString;
+    @Getter private String preparedStatementString = null;
 
     private Map<String, String> parameters;
     private Map<String, Pair<FieldTypes,Object>> preparedStatementParameters = new HashMap<>();
@@ -46,6 +46,7 @@ public class Query {
 
         this.tableNames = List.of(tableNames);
         // TODO:  Should we automatically generate the preparedStatement string?
+        // A:  No.  Not a bad idea to, but I'd like to keep the constructor exception free.
     }
 
     public void createParameterMap() {
