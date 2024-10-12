@@ -16,8 +16,8 @@ public class QueryFreeResTests {
     public void testQueryCreationSingleParameter() {
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put("FamilyID","205");
-        Query query = new Query(paramMap,new String[]{"dbo.FreeResidents"}, new FreeResident());
         try  {
+            Query query = new Query(paramMap,new String[]{"dbo.FreeResidents"}, new FreeResident());
             query.generatePreparedStatementString();
             assertTrue(
                     StringUtils.equalsIgnoreCase(query.getPreparedStatementString(),
@@ -33,8 +33,8 @@ public class QueryFreeResTests {
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put("FamilyID","205");
         paramMap.put("Sex","f");
-        Query query = new Query(paramMap,new String[]{"dbo.Freeresidents"}, new FreeResident());
         try {
+            Query query = new Query(paramMap,new String[]{"dbo.Freeresidents"}, new FreeResident());
             query.generatePreparedStatementString();
             assertTrue(
                     StringUtils.equalsIgnoreCase(query.getPreparedStatementString(),
@@ -49,8 +49,8 @@ public class QueryFreeResTests {
     public void testQueryCreationIneqOperator() {
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put("Age.GT","5");
-        Query query = new Query(paramMap, new String[]{"dbo.Freeresidents"}, new FreeResident());
         try {
+            Query query = new Query(paramMap, new String[]{"dbo.Freeresidents"}, new FreeResident());
             query.generatePreparedStatementString();
             assertTrue(
                     StringUtils.equalsIgnoreCase(query.getPreparedStatementString(),

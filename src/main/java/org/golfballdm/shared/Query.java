@@ -38,15 +38,14 @@ public class Query {
     private Query() {
     }
 
-    public Query(Map<String, String> parameters, String[] tableNames, Object t) {
+    public Query(Map<String, String> parameters, String[] tableNames, Object t) throws SQLException {
         this.parameters = parameters;
         createParameterMap();
 
         allFieldNames = Stream.of(t.getClass().getDeclaredFields()).map(Field::getName).toList();
 
         this.tableNames = List.of(tableNames);
-        // TODO:  Should we automatically generate the preparedStatement string?
-        // A:  No.  Not a bad idea to, but I'd like to keep the constructor exception free.
+        this.generatePreparedStatementString();
     }
 
     public void createParameterMap() {
@@ -84,7 +83,7 @@ public class Query {
 
 
 
-    public String generatePreparedStatementString() throws SQLException {
+    public void generatePreparedStatementString() throws SQLException {
         List<String> whereClauses = new ArrayList<>();
 
         ArrayList<String> parameterList = new ArrayList<>(parameters.keySet());
@@ -151,13 +150,37 @@ public class Query {
 
         sqlStatement.append(";");
         preparedStatementString = sqlStatement.toString();
-
-        return preparedStatementString;
     }
 
 
-    public PreparedStatement generatePreparedStatement(Connection conn) {
-        return null;
+    public PreparedStatement generatePreparedStatement(Connection conn) throws SQLException, IllegalArgumentException {
+        if (null == preparedStatementString || preparedStatementString.length() == 0) {
+            throw new IllegalArgumentException("Prepared statement is blank");
+        }
+        PreparedStatement ps = conn.prepareStatement(preparedStatementString);
 
+        // Assign parameters, in order
+        ArrayList<String> parameterList = new ArrayList<>(parameters.keySet());
+        Collections.sort(parameterList);
+
+        int index = 1;
+
+        for (String s : parameterList) {
+            if (StringUtils.equalsIgnoreCase(s, distinctFieldParameterName) ||
+                    StringUtils.equalsIgnoreCase(s, sortFieldParameterName) ||
+                    StringUtils.equalsIgnoreCase(s, sortDirection)) {
+                continue;
+            }
+
+            switch (preparedStatementParameters.get(s).getKey()) {
+                case FLOAT -> ps.setFloat(index++, (Float) preparedStatementParameters.get(s).getValue());
+                case INTEGER -> ps.setInt(index++, (Integer) preparedStatementParameters.get(s).getValue());
+                case STRING -> ps.setString(index++, preparedStatementParameters.get(s).toString());
+            }
+        }
+
+        return ps;
     }
+
+    // TODO:  Create execute function
 }

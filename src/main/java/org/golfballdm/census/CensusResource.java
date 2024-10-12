@@ -92,7 +92,14 @@ public class CensusResource {
         logger.info("parameter validation passed");
 
         // Build Query object
-        Query query = new Query(validatedParams, new String[]{"dbo.FreeResidents"}, new FreeResident());
+        Query query = null;
+        try {
+            query = new Query(validatedParams, new String[]{"dbo.FreeResidents"}, new FreeResident());
+        } catch (SQLException e) {
+            ObjectNode json = mapper.createObjectNode();
+            json.put("exception", e.getMessage());
+            return Response.status(Response.Status.BAD_REQUEST).entity(json).build();
+        }
 
         // Return list of persons
         return null;
