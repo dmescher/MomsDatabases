@@ -1,19 +1,22 @@
 package org.golfballdm.census;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 
 import org.golfballdm.DAO.CensusDAO;
-import org.golfballdm.models.FreeResident;
+import org.golfballdm.orm.FreeResMapper;
 import org.golfballdm.shared.ParameterValidator;
 import org.golfballdm.shared.ParameterValidatorImpl;
 import org.golfballdm.shared.Query;
+import org.golfballdm.shared.QueryExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 @Path("/census")
@@ -91,18 +94,33 @@ public class CensusResource {
 
         logger.info("parameter validation passed");
 
+        FreeResMapper ORMmapper = new FreeResMapper();
+        QueryExecutor exec = new QueryExecutor(dao, validatedParams, new String[]{"dbo.FreeResidents"}, ORMmapper);
         // Build Query object
         Query query = null;
         try {
-            query = new Query(validatedParams, new String[]{"dbo.FreeResidents"}, new FreeResident());
+            exec.buildQuery();
         } catch (SQLException e) {
             ObjectNode json = mapper.createObjectNode();
             json.put("exception", e.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).entity(json).build();
         }
 
-        // Return list of persons
-        return null;
+        List<Object> rtnVal = null;
+        try {
+            rtnVal =  exec.executeQuery();
+        } catch (SQLException e) {
+            ObjectNode json = mapper.createObjectNode();
+            json.put("exception", e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(json).build();
+        }
+
+        ArrayNode rtnList = mapper.createArrayNode();
+        for (Object o : rtnVal) {
+            rtnList.addPOJO(o);
+        }
+
+        return Response.status(Response.Status.OK).entity(rtnList).build();
     }
 
     /*

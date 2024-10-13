@@ -1,19 +1,21 @@
 package org.golfballdm.DAO;
 
 import com.zaxxer.hikari.HikariConfig;
+import lombok.Getter;
 
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
 
 public abstract class GenericDAO {
     protected ConnectionPool connectionPool;
     private HikariConfig poolConfig;
-    private boolean configured = false;
+    @Getter private boolean configured = false;
     private final String daoName;
     private static final String TEST_SQL = "SELECT * from dbo.Empty";
     private DataSource ds = null;
@@ -24,10 +26,6 @@ public abstract class GenericDAO {
     public GenericDAO(String daoName, DataSource ds) {
         this.daoName = daoName;
         this.ds = ds;
-    }
-
-    public boolean isConfigured() {
-        return configured;
     }
 
     protected synchronized void configure() {
@@ -72,7 +70,7 @@ public abstract class GenericDAO {
         return rtn;
     }
 
-    private Connection getConnectionFromPool() throws IllegalStateException, SQLException {
+    public Connection getConnectionFromPool() throws IllegalStateException, SQLException {
         if (!configured) {
             throw new IllegalStateException("DAO "+daoName+" not configured.");
         }
@@ -94,5 +92,9 @@ public abstract class GenericDAO {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public ResultSet executePS(PreparedStatement ps) throws SQLException {
+        return ps.executeQuery();
     }
 }
