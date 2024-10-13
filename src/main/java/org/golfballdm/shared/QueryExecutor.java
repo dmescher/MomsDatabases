@@ -8,7 +8,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,7 @@ public class QueryExecutor {
     }
 
     public void buildQuery() throws SQLException {
-        query = new Query(this.parameters, new String[]{"dbo.FreeResidents"}, new FreeResident());
+        query = new Query(this.parameters, tables, new FreeResident());
     }
 
     public List<Object> executeQuery() throws SQLException {
