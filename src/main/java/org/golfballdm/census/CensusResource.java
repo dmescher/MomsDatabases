@@ -10,7 +10,6 @@ import org.golfballdm.DAO.CensusDAO;
 import org.golfballdm.orm.FreeResMapper;
 import org.golfballdm.shared.ParameterValidator;
 import org.golfballdm.shared.ParameterValidatorImpl;
-import org.golfballdm.shared.Query;
 import org.golfballdm.shared.QueryExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +23,7 @@ public class CensusResource {
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final CensusDAO dao = CensusDAO.getInstance();
     private static final ParameterValidator parameterValidator = new ParameterValidatorImpl();
-    private static Logger logger = LoggerFactory.getLogger(CensusResource.class);
+    private static final Logger logger = LoggerFactory.getLogger(CensusResource.class);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -96,8 +95,7 @@ public class CensusResource {
 
         FreeResMapper ORMmapper = new FreeResMapper();
         QueryExecutor exec = new QueryExecutor(dao, validatedParams, new String[]{"dbo.FreeResidents"}, ORMmapper);
-        // Build Query object
-        Query query = null;
+        // Build Query
         try {
             exec.buildQuery();
         } catch (SQLException e) {

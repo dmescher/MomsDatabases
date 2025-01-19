@@ -26,13 +26,14 @@ public class Query {
     @Getter private String preparedStatementString = null;
 
     private Map<String, String> parameters;
-    private Map<String, Pair<FieldTypes,Object>> preparedStatementParameters = new HashMap<>();
+    private final Map<String, Pair<FieldTypes,Object>> preparedStatementParameters = new HashMap<>();
 
     private List<String> allFieldNames = new ArrayList<>();
 
     public static final String distinctFieldParameterName = "distinct_field";
     public static final String sortFieldParameterName = "sort_field";
     public static final String sortDirection = "sort_direction";
+    public static final String expressQuery = "express";
     private static final int COLUMN_NAME_DEFAULT_SIZE = 15;
 
     private Query() {
@@ -154,7 +155,7 @@ public class Query {
 
 
     public PreparedStatement generatePreparedStatement(Connection conn) throws SQLException, IllegalArgumentException {
-        if (null == preparedStatementString || preparedStatementString.length() == 0) {
+        if (null == preparedStatementString || preparedStatementString.isEmpty()) {
             throw new IllegalArgumentException("Prepared statement is blank");
         }
         PreparedStatement ps = conn.prepareStatement(preparedStatementString);

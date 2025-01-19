@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Properties;
 
 public abstract class GenericDAO {
@@ -17,8 +18,9 @@ public abstract class GenericDAO {
     private HikariConfig poolConfig;
     @Getter private boolean configured = false;
     private final String daoName;
-    private static final String TEST_SQL = "SELECT * from dbo.Empty";
+    private String TEST_SQL = "SELECT * from dbo.Empty";
     private DataSource ds = null;
+    @Getter private String[] expressQueries = null;
 
     protected GenericDAO(String daoName) {
         this.daoName = daoName;
@@ -41,6 +43,7 @@ public abstract class GenericDAO {
         poolConfig = createConfiguration(daoName);
         connectionPool = new ConnectionPool(poolConfig);
         ds = connectionPool.getDataSource();
+        expressQueries = loadExpressQueries();
         configured = true;
     }
 
@@ -60,7 +63,11 @@ public abstract class GenericDAO {
             rtn.setUsername(properties.getProperty(daoName+".jdbc.user"));
             rtn.setPassword(properties.getProperty(daoName+".jdbc.password"));
             rtn.setMaximumPoolSize(Integer.parseInt(properties.getProperty(daoName+".hikari.maxpoolsize")));
-            rtn.setConnectionTestQuery(TEST_SQL);
+            if (null == properties.getProperty(daoName+".testquery")) {
+                rtn.setConnectionTestQuery(TEST_SQL);
+            } else {
+                rtn.setConnectionTestQuery(properties.getProperty(daoName+".testquery"));
+            }
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Failure to load properties for "+configName);
@@ -68,6 +75,39 @@ public abstract class GenericDAO {
         }
 
         return rtn;
+    }
+
+    private String[] loadExpressQueries() {
+        Properties properties = new Properties();
+        ArrayList<String> queries = new ArrayList<>();
+
+        try (InputStream input = GenericDAO.class.getClassLoader().getResourceAsStream((daoName+".properties"))) {
+            if (null == input) {
+                System.out.println(daoName+":  Resource does not exist at path");
+                return null;
+            }
+            properties.load(input);
+            int count = 1;
+            boolean done = false;
+            do {
+                String queryVal = properties.getProperty(daoName+".expressquery."+count++);
+                if (null == queryVal) {
+                    done = true;
+                } else {
+                    queries.add(queryVal);
+                }
+            } while (!done);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Failure to load properties for "+daoName);
+            System.exit(1);
+        }
+
+        String[] rtnval = new String[queries.size()];
+        if (queries.size() > 1) {
+            return queries.toArray(rtnval);
+        }
+        return null;
     }
 
     public Connection getConnectionFromPool() throws IllegalStateException, SQLException {
@@ -97,4 +137,6 @@ public abstract class GenericDAO {
     public ResultSet executePS(PreparedStatement ps) throws SQLException {
         return ps.executeQuery();
     }
+
+
 }

@@ -13,8 +13,9 @@ public class ParameterValidatorImpl implements ParameterValidator {
     private static final String distinctFieldParameterName = Query.distinctFieldParameterName;
     private static final String sortFieldParameterName = Query.sortFieldParameterName;
     private static final String sortDirectionName = Query.sortDirection;
+    private static final String expressName = Query.expressQuery;
     private static final ColumnNameValidator columnNameValidator = new ColumnNameValidatorImpl();
-    private static Logger logger = LoggerFactory.getLogger(ParameterValidatorImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ParameterValidatorImpl.class);
 
     @Override
     public Map<String, String> validateParameters(MultivaluedMap<String, String> parameters) {
@@ -34,6 +35,7 @@ public class ParameterValidatorImpl implements ParameterValidator {
         boolean rtnField = false;
         boolean sortField = false;
         boolean sortType = false;
+        boolean express = false;
         do {
             String keyName = "field"+ (fieldsProcessed < 10 ? "0" : fieldsProcessed / 10) + (fieldsProcessed % 10);
             String valName = "value"+ (fieldsProcessed < 10 ? "0" : fieldsProcessed / 10) + (fieldsProcessed % 10);
@@ -70,6 +72,13 @@ public class ParameterValidatorImpl implements ParameterValidator {
             sortField = true;
         }
 
+        // Check for express queries
+        if (parameters.containsKey(expressName)) {
+            String val = parameters.getFirst(expressName);
+            rtn.put(expressName,val);
+            express = true;
+        }
+
         if (parameters.containsKey(sortDirectionName)) {
             if (!sortField) {
                 throw new IllegalArgumentException("Sort direction is missing column name");
@@ -84,10 +93,10 @@ public class ParameterValidatorImpl implements ParameterValidator {
         }
 
         int queryParamLength = parameters.keySet().size();
-        if (queryParamLength != (fieldsProcessed*2)+(rtnField ? 1 : 0)+(sortField ? 1 : 0)+(sortType ? 1 : 0)) {
+        if (queryParamLength != (fieldsProcessed*2)+(rtnField ? 1 : 0)+(sortField ? 1 : 0)+(sortType ? 1 : 0)+(express ? 1 : 0)) {
             System.out.println("queryParamLength = "+queryParamLength);
             System.out.println("fieldsProcessed = "+fieldsProcessed);
-            System.out.println("expected count = "+(fieldsProcessed*2+(rtnField ? 1 : 0)+(sortField ? 1 : 0)+(sortType ? 1 : 0)));
+            System.out.println("expected count = "+(fieldsProcessed*2+(rtnField ? 1 : 0)+(sortField ? 1 : 0)+(sortType ? 1 : 0)+(express ? 1 : 0)));
             throw new IllegalArgumentException("Invalid field count");
         }
 

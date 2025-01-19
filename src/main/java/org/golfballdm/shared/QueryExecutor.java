@@ -13,11 +13,11 @@ import java.util.List;
 import java.util.Map;
 
 public class QueryExecutor {
-    private GenericDAO dao;
-    private String[] tables;
+    private final GenericDAO dao;
+    private final String[] tables;
     private Query query;
-    private GenericMapper mapper;
-    private Map<String, String> parameters;
+    private final GenericMapper mapper;
+    private final Map<String, String> parameters;
 
     public QueryExecutor(GenericDAO dao, Map<String, String> parameters, String[] tables, GenericMapper mapper) {
         this.dao = dao;
@@ -28,6 +28,10 @@ public class QueryExecutor {
 
     public void buildQuery() throws SQLException {
         query = new Query(this.parameters, tables, new FreeResident());
+    }
+
+    public void buildExpressQuery() throws SQLException {
+
     }
 
     public List<Object> executeQuery() throws SQLException {
