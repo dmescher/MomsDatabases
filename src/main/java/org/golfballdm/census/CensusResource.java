@@ -116,7 +116,11 @@ public class CensusResource {
                 new QueryExecutor(dao, validatedParams, new String[]{"dbo.FreeResidents"}, expressQueries, ORMmapper);
         // Build Query
         try {
-            exec.buildQuery();
+            if (!express) {
+                exec.buildQuery();
+            } else {
+                exec.buildExpressQuery(Integer.valueOf(validatedParams.get(Query.expressQuery)));
+            }
         } catch (SQLException e) {
             ObjectNode json = mapper.createObjectNode();
             json.put("exception", e.getMessage());
