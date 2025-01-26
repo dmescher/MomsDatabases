@@ -18,19 +18,30 @@ public class QueryExecutor {
     private Query query;
     private final GenericMapper mapper;
     private final Map<String, String> parameters;
+    private final Map<Integer, String> expressQueries;
 
     public QueryExecutor(GenericDAO dao, Map<String, String> parameters, String[] tables, GenericMapper mapper) {
         this.dao = dao;
         this.parameters = parameters;
         this.tables = Arrays.copyOf(tables, tables.length);
         this.mapper = mapper;
+        this.expressQueries = null;
+    }
+
+    public QueryExecutor(GenericDAO dao, Map<String, String> parameters, String[] tables, Map<Integer, String> expressQueries, GenericMapper mapper) {
+        this.dao = dao;
+        this.parameters = parameters;
+        this.tables = Arrays.copyOf(tables, tables.length);
+        this.mapper = mapper;
+        this.expressQueries = expressQueries;
     }
 
     public void buildQuery() throws SQLException {
         query = new Query(this.parameters, tables, new FreeResident());
     }
 
-    public void buildExpressQuery() throws SQLException {
+    public void buildExpressQuery(Integer queryNum) throws SQLException {
+        query = new Query(this.parameters, tables, new FreeResident(), expressQueries.get(queryNum));
 
     }
 

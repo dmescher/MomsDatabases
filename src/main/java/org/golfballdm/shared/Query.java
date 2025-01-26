@@ -49,6 +49,11 @@ public class Query {
         this.generatePreparedStatementString();
     }
 
+    public Query(Map<String, String> parameters, String[] tableNames, Object t, String exPs) throws SQLException {
+        this(parameters, tableNames, t);
+        this.preparedStatementString = exPs;
+    }
+
     public void createParameterMap() {
         for (String s : parameters.keySet()) {
             String val = parameters.get(s);

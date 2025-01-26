@@ -10,11 +10,13 @@ import org.golfballdm.DAO.CensusDAO;
 import org.golfballdm.orm.FreeResMapper;
 import org.golfballdm.shared.ParameterValidator;
 import org.golfballdm.shared.ParameterValidatorImpl;
+import org.golfballdm.shared.Query;
 import org.golfballdm.shared.QueryExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +26,19 @@ public class CensusResource {
     private static final CensusDAO dao = CensusDAO.getInstance();
     private static final ParameterValidator parameterValidator = new ParameterValidatorImpl();
     private static final Logger logger = LoggerFactory.getLogger(CensusResource.class);
+    private static final Map<Integer, String> expressQueries;
+
+    static {
+        expressQueries = new HashMap<>();
+        expressQueries.put(0, "SELECT * FROM dbo.FreeResidents WHERE NAME = ?");
+        expressQueries.put(1, "SELECT * FROM dbo.FreeResidents WHERE FamilyID = ?");
+        expressQueries.put(2, "SELECT * FROM dbo.FreeResidents WHERE NumSlaves = ?");
+        expressQueries.put(3, "SELECT * FROM dbo.FreeResidents WHERE "); // TODO:  County
+        expressQueries.put(4, "SELECT * FROM dbo.FreeResidents WHERE Color = ?");
+        expressQueries.put(5, "SELECT * FROM dbo.FreeResidents WHERE Married = ?");
+        expressQueries.put(6, "SELECT * FROM dbo.FreeResidents WHERE Schooling = ?");
+        expressQueries.put(7, "SELECT * FROM dbo.FreeResidents WHERE IlliterateOver20 = ?");
+    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -91,10 +106,14 @@ public class CensusResource {
             return Response.status(Response.Status.BAD_REQUEST).entity(json).build();
         }
 
+        boolean express = validatedParams.containsKey(Query.expressQuery);
+
         logger.info("parameter validation passed");
 
         FreeResMapper ORMmapper = new FreeResMapper();
-        QueryExecutor exec = new QueryExecutor(dao, validatedParams, new String[]{"dbo.FreeResidents"}, ORMmapper);
+        QueryExecutor exec = (express) ?
+                new QueryExecutor(dao, validatedParams, new String[]{"dbo.FreeResidents"}, ORMmapper) :
+                new QueryExecutor(dao, validatedParams, new String[]{"dbo.FreeResidents"}, expressQueries, ORMmapper);
         // Build Query
         try {
             exec.buildQuery();
